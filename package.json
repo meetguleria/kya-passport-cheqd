@@ -1,0 +1,38 @@
+{
+  "name": "kya-passport",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@cheqd/sdk": "^5.2.1",
+    "@langchain/core": "^0.3.49",
+    "@langchain/openai": "^0.5.7",
+    "axios": "^1.9.0",
+    "did-jwt-vc": "^4.0.12",
+    "jsonld": "^8.3.3",
+    "jsonld-signatures": "^11.5.0",
+    "langchain": "^0.3.24",
+    "next": "15.3.1",
+    "openai": "^4.96.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-qr-code": "^2.0.15",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
