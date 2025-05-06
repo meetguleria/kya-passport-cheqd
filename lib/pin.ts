@@ -1,24 +1,27 @@
-import { cheqd } from '@/lib/cheqd';
-import crypto from 'crypto';
+import { cheqd } from "@/lib/cheqd";
+import crypto from "crypto";
 
 export interface DlrResponse {
-  uri: string;
+  transactionHash: string;
 }
 
 export async function pinDlr(agentDid: string, data: object): Promise<DlrResponse> {
-  // Compute content hash
+  // 1. Compute a unique hash for the data
   const hash = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(JSON.stringify(data))
-    .digest('hex');
+    .digest("hex");
 
-    // Create DLR
-    const res = await cheqd.drc.linkedResource.create({
-      issuer: agentDid,
-      data: {
-        hash, ...data
-      },
-    });
+  // 2. Construct the payload for the createResource transaction
+  const payload = {
+    id: `${agentDid}#resource-${hash}`,
+    content: JSON.stringify(data),
+    contentType: "application/json",
+  };
 
-    return { uri: res.uri};
+  // 3. Anchor the resource on-chain via the Cheqd SDK generic executor
+  const tx = await cheqd.execute("resource.createResource", payload);
+
+  // 4. Return the transaction hash for tracking
+  return { transactionHash: tx.transactionHash };
 }
