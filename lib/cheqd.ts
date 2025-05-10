@@ -1,21 +1,21 @@
+// lib/cheqd.ts
 import { createCheqdSDK, CheqdNetwork } from "@cheqd/sdk";
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { DirectSecp256k1HdWallet }      from "@cosmjs/proto-signing";
 
-async function initCheqd() {
+export async function initCheqd() {
+  // Restore wallet from mnemonic
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
-    process.env.CHEQD_MNEMONIC!,
-    { prefix: "cheqd" }
+    process.env.MNEMONIC!, { prefix: "cheqd" }
   );
 
+  // Let the SDK load its default modules internally
+  // (DID, Resource, Feemarket, Feeabstraction)
+  // @ts-expect-error omitted modules array: SDK will load defaults internally
   const cheqd = await createCheqdSDK({
-    modules: [],                            // load built-in modules
-    rpcUrl:  "https://rpc.cheqd.network",   // testnet RPC
-    network: CheqdNetwork.Testnet,          // use the Testnet chain
-    wallet,                                 // Cosmos OfflineSigner
+    rpcUrl:  "https://rpc.cheqd.network",
+    network: CheqdNetwork.Testnet,
+    wallet,
   });
 
   return { cheqd, wallet };
 }
-
-// Export the initialized SDK client for use in services
-export const { cheqd, wallet } = await initCheqd();
