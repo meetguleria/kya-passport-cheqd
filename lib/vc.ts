@@ -1,16 +1,9 @@
 // lib/vc.ts
-import { wallet } from "@/lib/cheqd";
+import { getCheqdClient } from "@/lib/cheqd";
 import { createVerifiableCredentialJwt } from "did-jwt-vc";
 import type { Signer } from "did-jwt";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
-/**
- * Issues a JWT Verifiable Credential signed by the agent's on-chain key.
- *
- * @param agentDid    - The DID that issues the credential.
- * @param subjectDid  - The subject DID for whom the VC is issued.
- * @param claims      - The credentialSubject claims to embed.
- */
 export async function issueVc(
   agentDid: string,
   subjectDid: string,
@@ -26,11 +19,13 @@ export async function issueVc(
     },
   };
 
-  // Encode payload for signing
+  // Encoder for signing
   const encoder = new TextEncoder();
-  const bodyBytes = encoder.encode(JSON.stringify(vcPayload));
 
-  // Get the signer address
+  // Get the cached Cheqd wallet
+  const { wallet } = await getCheqdClient();
+
+  // Get the signer address from the cached wallet
   const [account] = await wallet.getAccounts();
   const address = account.address;
 

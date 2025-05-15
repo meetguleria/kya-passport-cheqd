@@ -1,12 +1,13 @@
 import { AgentResult } from "./types";
-import { OpenAI } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
 
-const llm = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-  modelName: "gpt-4o-mini",
+const chat = new ChatOpenAI({
+  openAIApiKey: process.env.OPENAI_API_KEY!,
+  modelName: "gpt-4o",
 });
 
 export async function runAgent(prompt: string): Promise<AgentResult> {
-  const text = await llm.call(prompt);
-  return { text, model: llm.modelName };
+  const res = await chat.call([ new HumanMessage(prompt) ]);
+  return { text: res.text, model: chat.modelName };
 }
