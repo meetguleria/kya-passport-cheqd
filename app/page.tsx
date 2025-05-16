@@ -12,15 +12,15 @@ const AGENT_DID = 'did:cheqd:testnet:EXAMPLE';
 export default function Home() {
   const [did, setDid] = useState<string>("");
   const [keys, setKeys] = useState<string[]>([]);
+  const [didTx, setDidTx] = useState<string>("");
   const [prompt, setPrompt] = useState('');
   const [vcJwt, setVcJwt] = useState('');
+  const [verifyResult, setVerifyResult] = useState<any>(null);
+  const [verifyLoading, setVerifyLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
+  const [chatText, setChatText] = useState<string>('');
 
-  // Extract the method-specific ID (UUID) from the DID
-  const methodId = did.split(':').pop();
-  const explorerLink = methodId
-    ? `https://testnet-explorer.cheqd.io/search?query=${encodeURIComponent(methodId)}`
-    : '';
+  const txExplorerLink = didTx
 
   // Step 1: Create a DID
   async function handleCreateDid() {
@@ -28,9 +28,10 @@ export default function Home() {
     try {
       const res = await fetch(CREATE_API, { method: "POST" });
       if (!res.ok) throw await res.json();
-      const { did: newDid, keys: newKeys } = await res.json();
+      const { did: newDid, keys: newKeys, txHash: newTxHash } = await res.json();
       setDid(newDid);
       setKeys(newKeys.map((k: any) => k.kid));
+      setDidTx(newTxHash);
     } catch (e: any) {
       console.error("Create DID error:", e.error || e);
       alert("Failed to create DID: " + (e.error || e));
@@ -52,6 +53,7 @@ export default function Home() {
         body: JSON.stringify({ prompt }),
       });
       const { text, model } = await agentRes.json();
+      setChatText(text);
 
       // Pin data
       const pinRes = await fetch(PIN_API, {
@@ -82,6 +84,26 @@ export default function Home() {
     }
   }
 
+  // Step 3: Verify VC
+  async function handleVerify() {
+    setVerifyLoading(true);
+    try {
+      const res = await fetch('/api/credential/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jwt: vcJwt }),
+      });
+      if (!res.ok) throw await res.json();
+      const json = await res.json();
+      setVerifyResult(json);
+    } catch (e: any) {
+      console.error('Verification error:', e.error || e);
+      alert('Verification failed: ' + (e.error || e.message));
+    } finally {
+      setVerifyLoading(false);
+    }
+  }
+
   return (
     <main className="p-8 space-y-6">
       {/* 1. DID Creation */}
@@ -94,14 +116,9 @@ export default function Home() {
           {did ? "DID Created" : loading ? "Creating..." : "Create DID"}
         </button>
         {did && (
-          <a
-            href={explorerLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline text-blue-600 break-all"
-          >
-            <code>{did}</code>
-          </a>
+          <>
+            <code className="break-all">{did}</code>
+          </>
         )}
       </div>
 
@@ -122,14 +139,46 @@ export default function Home() {
           {loading ? "Processing..." : "Run & Issue VC"}
         </button>
       </form>
-
+      {/* 2. Chat Output */}
+      {chatText && (
+        <div className='mt-4'>
+          <h2 className="font-bold"> AI Agent Response:</h2>
+          <p className='p-2 border rounded bg-black text-white whitespace-pre-wrap'>{chatText}</p>
+        </div>
+      )}
       {/* 3. Show VC and QR */}
       {vcJwt && (
         <div className="mt-8 space-y-4">
           <h2 className="font-bold">Your VC (JWT):</h2>
           <textarea readOnly value={vcJwt} className="w-full p-2 border" rows={4} />
-          <h2 className="font-bold">Scan to Verify:</h2>
-          <QRCode value={vcJwt} />
+          <h2 className="font-bold">Scan or Click to Verify:</h2>
+          <div className="flex items-center space-x-4">
+            {/* QR code for mobile scan */}
+            <QRCode value={vcJwt} />
+            {/* Link for desktop verification */}
+            <a
+              href={`/api/credential/verify?jwt=${encodeURIComponent(vcJwt)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              Verify VC (Link)
+            </a>
+          </div>
+
+          <button
+            onClick={handleVerify}
+            disabled={verifyLoading}
+            className="mt-2 px-4 py-2 bg-purple-600 text-white rounded"
+            >
+              {verifyLoading ? "Verifying..." : "Verify VC"}
+          </button>
+          {verifyResult && (
+            <div className='mt-4 p-2 border bg-gray-50'>
+              <h3 className='font-semibold'>Verificaion Result:</h3>
+              <pre className="whitespace-pre-wrap">{JSON.stringify(verifyResult, null, 2)}</pre>
+            </div>
+          )}
         </div>
       )}
     </main>

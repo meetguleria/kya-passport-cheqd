@@ -1,5 +1,5 @@
-import { createDidStudio } from "./cheqdStudio";
+import { createDidStudio, CreateDidResponse } from "./cheqdStudio";
 
-export async function createDid() {
+export async function createDid(): Promise<CreateDidResponse> {
   return createDidStudio();
 }

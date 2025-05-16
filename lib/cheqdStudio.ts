@@ -1,4 +1,19 @@
 import { Buffer } from 'buffer';
+
+export interface FullVcResponse {
+  proof: {
+    jwt: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+//Response payload for createDidStudio()
+export interface CreateDidResponse {
+  did: string;
+  keys: Array<{ kid: string; publicKeyHex: string; controller: string }>;
+}
+
 const BASE = process.env.CHEQD_STUDIO_URL!;
 const KEY = process.env.CHEQD_API_KEY!;
 
@@ -27,10 +42,7 @@ async function studioPost<T>(path: string, body: object): Promise<T> {
 
 // Create DID on testnet
 export async function createDidStudio() {
-  return studioPost<{
-    did: string,
-    keys: Array<{ kid: string; publicKeyHex: string; controller: string }>;
-  }>('/did/create', {
+  return studioPost<CreateDidResponse>('/did/create', {
     network: 'testnet',
     identifierFormatType: 'uuid',
     verificationMethodType: 'Ed25519VerificationKey2018',
@@ -61,8 +73,45 @@ export async function issueCredentialStudio(
   issuerDid: string,
   subjectDid: string,
   attributes: Record<string, any>,
-) {
-  return studioPost<{ jwt: string }>(`/credential/issue`, {
+): Promise<{ jwt: string }> {
+  // Call Studio, expecting the full VC JSON
+  const fullVc = await studioPost<FullVcResponse>(`/credential/issue`, {
+    issuerDid,
+    subjectDid,
+    attributes,
+    format: 'jwt',
+  });
+  // Ensure proof.jwt is present
+  if (!fullVc.proof?.jwt) {
+    throw new Error('No JWT in VC proof');
+  }
+  return { jwt: fullVc.proof.jwt };
+}
+
+// Verify a verifiable Credential jwt
+export async function verifyCredentialStudio(jwt: string) {
+  return studioPost<{
+    valid: boolean;
+    errors?: any[];
+    payload?: any;
+  }>(
+    `/credential/verify`,
+    {
+      format: 'jwt',
+      verifiableCredential: jwt,
+    }
+  );
+}
+
+/**
+ * Issue and return the full Verifiable Credential JSON (including proof, contexts, etc.)
+ */
+export async function issueFullCredentialStudio(
+  issuerDid: string,
+  subjectDid: string,
+  attributes: Record<string, any>,
+): Promise<FullVcResponse> {
+  return studioPost<FullVcResponse>(`/credential/issue`, {
     issuerDid,
     subjectDid,
     attributes,
