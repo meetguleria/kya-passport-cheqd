@@ -11,6 +11,7 @@ const AGENT_DID = 'did:cheqd:testnet:EXAMPLE';
 
 export default function Home() {
   const [did, setDid] = useState<string>("");
+  const [fullVc, setFullVc] = useState<any>(null);
   const [keys, setKeys] = useState<string[]>([]);
   const [didTx, setDidTx] = useState<string>("");
   const [prompt, setPrompt] = useState('');
@@ -73,8 +74,10 @@ export default function Home() {
           claims: { text, model, resourceURI },
         }),
       });
-      const { jwt } = await vcRes.json();
+      // expect both jwt and full credential JSON
+      const { jwt, credential } = await vcRes.json();
       setVcJwt(jwt);
+      setFullVc(credential);
     } catch (e: any) {
       console.error("Workflow error:", e);
       const msg = e?.error || e?.message || String(e);
@@ -88,10 +91,11 @@ export default function Home() {
   async function handleVerify() {
     setVerifyLoading(true);
     try {
+      if (!fullVc) throw new Error("No credential to verify");
       const res = await fetch('/api/credential/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jwt: vcJwt }),
+        body: JSON.stringify({ credential: fullVc }),
       });
       if (!res.ok) throw await res.json();
       const json = await res.json();
@@ -155,15 +159,6 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             {/* QR code for mobile scan */}
             <QRCode value={vcJwt} />
-            {/* Link for desktop verification */}
-            <a
-              href={`/api/credential/verify?jwt=${encodeURIComponent(vcJwt)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline"
-            >
-              Verify VC (Link)
-            </a>
           </div>
 
           <button

@@ -1,43 +1,203 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Kya Passport
 
-## Getting Started
+A Trustworthy AI Credentialing App leveraging Cheqd DIDs & Verifiable Credentials
 
-First, run the development server:
+⸻
 
-```bash
+Table of Contents
+	•	Overview
+	•	Key Features
+	•	Architecture
+	•	Getting Started
+	•	Prerequisites
+	•	Installation
+	•	Environment Variables
+	•	Usage
+	•	1. Create DID
+	•	2. Run AI Agent & Pin Output
+	•	3. Issue Verifiable Credential
+	•	4. Verify Credential
+	•	API Endpoints
+	•	Library Overview
+	•	lib/cheqdStudio.ts
+	•	lib/vc.ts
+	•	lib/agent.ts
+	•	lib/pin.ts
+	•	Design Decisions
+	•	Future Improvements
+	•	License
+
+⸻
+
+Overview
+
+Kya Passport is a Next.js hackathon MVP that demonstrates how to integrate AI-generated content with Web3 trust infrastructure using Cheqd’s DID (Decentralized Identifier) and Verifiable Credential Studio APIs. It allows users to:
+	1.	Spin up an on-chain DID on Cheqd testnet.
+	2.	Submit a prompt to an AI agent (OpenAI gpt-4o).
+	3.	Pin the AI output as a DID-Linked Resource (DLR) on-chain.
+	4.	Issue a JWT Verifiable Credential (VC) for the AI output.
+	5.	Verify the issued VC via Cheqd Studio’s verify endpoint.
+
+This flow showcases the power of transparent, verifiable AI for building trust in AI-driven systems.
+
+⸻
+
+Key Features
+	•	On-Chain DID Creation: Quick generation of a Cheqd DID using Studio API.
+	•	AI Agent Integration: Runs prompts through OpenAI’s gpt-4o model.
+	•	DID-Linked Resource (DLR): Anchors JSON data on Cheqd as an on-chain resource.
+	•	Verifiable Credentials: Issues JWT-based VCs via Studio API.
+	•	VC Verification: Provides a UI-driven verify flow against Studio.
+	•	Zero Wallet Setup: No local wallet key management; uses Cheqd Studio’s API key.
+
+⸻
+
+Architecture
+
+Client (Next.js)  →  API Routes  →  lib/*  →  Cheqd Studio APIs & OpenAI
+
+	1.	Frontend (app/page.tsx): React hooks manage state for DID, prompt, AI output, VC issuance & verification. QR code for VC.
+	2.	API Routes (app/api/…/route.ts): Thin wrappers around lib/* functions.
+	3.	Library (lib/):
+	•	cheqdStudio.ts: Main HTTP client for Studio endpoints (/did/create, /resource/create, /credential/issue, /credential/verify).
+	•	agent.ts: Wraps OpenAI Chat model.
+	•	vc.ts: High-level VC issue function returning full credential + JWT.
+	•	pin.ts: (Optional) SDK-based pinning with CosmJS / Cheqd SDK.
+
+⸻
+
+Getting Started
+
+Prerequisites
+	•	Node.js v18+
+	•	npm or yarn
+	•	Cheqd Studio API Key (trial available at https://studio.cheqd.io)
+	•	.env.local configured (see below)
+
+Installation
+
+git clone https://github.com/your-repo/kya-passport.git
+cd kya-passport
+npm install
+# or yarn
+
+Environment Variables
+
+Create a .env.local in project root:
+
+# Next.js
+NEXT_PUBLIC_BASE_PATH=/   
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Cheqd Studio
+CHEQD_STUDIO_URL=https://studio.cheqd.io/api
+CHEQD_API_KEY=your_studio_api_key
+
+# (Optional) Cheqd RPC + mnemonic for SDK-based pin
+CHEQD_RPC_URL=https://rpc.cheqd.network
+MNEMONIC="your 24-word mnemonic"
+
+
+⸻
+
+Usage
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create DID
+	•	Click Create DID.
+	•	Your new DID (e.g. did:cheqd:testnet:...) appears.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Run AI Agent & Pin Output
+	•	Enter a prompt in the textarea.
+	•	Click Run & Issue VC.
+	•	AI agent response appears.
+	•	Resource pinned via createResourceStudio on Cheqd testnet.
 
-## Learn More
+3. Issue Verifiable Credential
+	•	Upon pinning, Studio issues a VC JWT.
+	•	JWT and QR code appear for scanning with external wallet apps.
 
-To learn more about Next.js, take a look at the following resources:
+4. Verify Credential
+	•	Click Verify VC.
+	•	Studio’s /credential/verify returns validity & payload.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+⸻
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+API Endpoints
 
-## Deploy on Vercel
+Route	Method	Description
+/api/agent	POST	Runs LLM agent & returns { text, model }
+/api/createDid	POST	Creates a DID via Studio
+/api/pin	POST	Pins JSON as DID-Linked Resource (DLR)
+/api/vc	POST	Issues VC JWT for pinned data
+/api/credential/verify	POST	Verifies a JWT VC
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# kya-passport-cheqd
-# kya-passport-cheqd
-# kya-passport-cheqd
-# kya-passport-cheqd
-# kya-passport-cheqd
-# kya-passport-cheqd
-# kya-passport-cheqd
+⸻
+
+Library Overview
+
+lib/cheqdStudio.ts
+
+Handles all HTTP calls to Cheqd Studio:
+	•	createDidStudio() → { did, keys }
+	•	createResourceStudio(did, data, name, type) → { resourceURI }
+	•	issueFullCredentialStudio(...) → full VC JSON
+	•	issueCredentialStudio(...) → { jwt }
+	•	verifyFullCredentialStudio(vcJson) → { valid, errors, payload }
+
+lib/vc.ts
+
+High-level VC issuance:
+
+import { issueFullCredentialStudio } from './cheqdStudio';
+export async function issueVc(...) {
+  const full = await issueFullCredentialStudio(...);
+  return { jwt: full.proof.jwt, credential: full };
+}
+
+lib/agent.ts
+
+Wraps OpenAI Chat model:
+
+import { ChatOpenAI } from '@langchain/openai';
+export async function runAgent(prompt) { ... }
+
+lib/pin.ts (Optional)
+
+Demonstrates SDK-based pinning via the CosmJS/Cheqd SDK:
+
+import { getCheqdClient } from './cheqd'; // CosmJS client
+export async function pinDlr(did, data) { ... }
+
+
+⸻
+
+Design Decisions
+	•	Cheqd Studio API over local SDK:
+Simplifies authentication (API key), no wallet setup, accelerated MVP.
+	•	Next.js App Router:
+Leverages serverless API routes for modular backend logic.
+	•	TypeScript & Interfaces:
+Strong typing for all Studio payloads & responses.
+	•	Tailwind CSS:
+Rapid UI styling, dark/light theme support.
+
+⸻
+
+Future Improvements
+	•	On-chain explorer links:  Query Tx hash or resourceID on Cheqd Explorer.
+	•	Holder DID support:  Integrate did:key creation for external holders.
+	•	Trust Registry:  Build registry of approved AI agents & credential schemas.
+	•	Authentication:  Allow users to import their own wallets via WalletConnect.
+
+⸻
+
+License
+
+This project is open-sourced under the MIT License. Feel free to reuse and contribute!

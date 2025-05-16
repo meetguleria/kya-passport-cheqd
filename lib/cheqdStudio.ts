@@ -88,8 +88,10 @@ export async function issueCredentialStudio(
   return { jwt: fullVc.proof.jwt };
 }
 
-// Verify a verifiable Credential jwt
-export async function verifyCredentialStudio(jwt: string) {
+// Verify a JWT-formatted Verifiable Credential
+export async function verifyCredentialStudio(
+  jwt: string
+): Promise<{ valid: boolean; errors?: any[]; payload?: any }> {
   return studioPost<{
     valid: boolean;
     errors?: any[];
@@ -98,7 +100,24 @@ export async function verifyCredentialStudio(jwt: string) {
     `/credential/verify`,
     {
       format: 'jwt',
-      verifiableCredential: jwt,
+      jwt,
+    }
+  );
+}
+
+// Verify a full JSON-LD Verifiable Credential
+export async function verifyFullCredentialStudio(
+  credential: FullVcResponse
+): Promise<{ valid: boolean; errors?: any[]; payload?: any }> {
+  return studioPost<{
+    valid: boolean;
+    errors?: any[];
+    payload?: any;
+  }>(
+    `/credential/verify`,
+    {
+      format: 'json-ld',
+      verifiableCredential: credential,
     }
   );
 }
