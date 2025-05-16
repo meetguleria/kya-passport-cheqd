@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { pinResource } from "@/lib/pinService";
+import { createResourceStudio } from "@/lib/cheqdStudio";
 
 export async function POST(request: NextRequest) {
   try {
-    const { agentDid } = await request.json();
-    const txHash = await pinResource(agentDid);
-    return NextResponse.json({ txHash });
+    const { agentDid, data } = await request.json();
+    const { resourceURI } = await createResourceStudio(
+      agentDid,
+      data,
+      "ai-output.json",
+      "application/json"
+    );
+    return NextResponse.json({ resourceURI });
   } catch (err: any) {
-    return new NextResponse(err.message || "Pin failed", { status: 500 });
+    console.error("Pin error:", err);
+    return NextResponse.json(
+      { error: err.message || "Pin failed" },
+      { status: 500 }
+    );
   }
 }

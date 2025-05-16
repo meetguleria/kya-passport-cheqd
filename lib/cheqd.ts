@@ -13,15 +13,15 @@ export async function getCheqdClient() {
     { prefix: "cheqd" }
   );
 
-  // 2. Initialize SDK with no modules to get signer + querier
+  // 2. Create a partial Cheqd SDK instance (empty modules to bootstrap signer + querier)
   const partial = await createCheqdSDK({
     modules: [],
-    rpcUrl: process.env.CHEQD_RPC_URL || "https://rpc.cheqd.network",
+    rpcUrl:  process.env.CHEQD_RPC_URL || "https://rpc.cheqd.network",
     network: CheqdNetwork.Testnet,
     wallet,
   });
 
-  // 3. Attach all required modules
+  // 3. Define a non-empty modules array using the extracted signer and querier
   const modules = [
     new DIDModule(partial.signer, partial.querier),
     new ResourceModule(partial.signer, partial.querier),
@@ -29,11 +29,11 @@ export async function getCheqdClient() {
     new FeeabstractionModule(partial.signer, partial.querier),
   ];
 
-  // 4. Rebuild the SDK with full functionality
+  // 4. Rebuild the full SDK with the defined modules
   const cheqd = await createCheqdSDK({
     modules,
-    rpcUrl: process.env.CHEQD_RPC_URL || "https://rpc.cheqd.network",
-    network: CheqdNetwork.Testnet,
+    rpcUrl:   process.env.CHEQD_RPC_URL || "https://rpc.cheqd.network",
+    network:  CheqdNetwork.Testnet,
     wallet,
   });
 

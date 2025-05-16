@@ -1,9 +1,5 @@
-import { MsgCreateDidDocEncodeObject } from "@cheqd/sdk";
-import { getCheqdClient } from '@/lib/cheqd';
+import { createDidStudio } from "./cheqdStudio";
 
-export async function createDid(
-  payload: MsgCreateDidDocEncodeObject["value"]
-) {
-  const { cheqd  } = await getCheqdClient();
-  return cheqd.execute("did.createDidDoc", payload);
+export async function createDid() {
+  return createDidStudio();
 }
