@@ -2,6 +2,7 @@
 import React from 'react';
 import { useState } from 'react';
 import QRCode from 'react-qr-code';
+import VerificationCard, { VerificationResult, CredentialSubject } from './components/VerificationCard';
 
 const AGENT_API = '/api/agent';
 const CREATE_API = '/api/createDid';
@@ -21,18 +22,15 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [chatText, setChatText] = useState<string>('');
 
-  const txExplorerLink = didTx
-
   // Step 1: Create a DID
   async function handleCreateDid() {
     setLoading(true);
     try {
       const res = await fetch(CREATE_API, { method: "POST" });
       if (!res.ok) throw await res.json();
-      const { did: newDid, keys: newKeys, txHash: newTxHash } = await res.json();
+      const { did: newDid, keys: newKeys } = await res.json();
       setDid(newDid);
       setKeys(newKeys.map((k: any) => k.kid));
-      setDidTx(newTxHash);
     } catch (e: any) {
       console.error("Create DID error:", e.error || e);
       alert("Failed to create DID: " + (e.error || e));
@@ -99,6 +97,7 @@ export default function Home() {
       });
       if (!res.ok) throw await res.json();
       const json = await res.json();
+      console.log("🔍 Verify API response:", json);
       setVerifyResult(json);
     } catch (e: any) {
       console.error('Verification error:', e.error || e);
@@ -168,11 +167,11 @@ export default function Home() {
             >
               {verifyLoading ? "Verifying..." : "Verify VC"}
           </button>
-          {verifyResult && (
-            <div className='mt-4 p-2 border bg-gray-50'>
-              <h3 className='font-semibold'>Verificaion Result:</h3>
-              <pre className="whitespace-pre-wrap">{JSON.stringify(verifyResult, null, 2)}</pre>
-            </div>
+          {verifyResult && fullVc && (
+            <VerificationCard
+              verifyResult={verifyResult as VerificationResult}
+              subject={fullVc.credentialSubject as CredentialSubject}
+            />
           )}
         </div>
       )}

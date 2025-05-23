@@ -4,9 +4,8 @@ import { createDidStudio } from "@/lib/cheqdStudio";
 export async function POST(request: NextRequest) {
   try {
     // call Studio directly
-    const { did, keys, transactionHash } = await createDidStudio();
-    console.log("Create DID transactionHash:", transactionHash);
-    return NextResponse.json({ did, keys, txHash: transactionHash });
+    const { did, keys } = await createDidStudio();
+    return NextResponse.json({ did, keys });
   } catch (err: any) {
     console.error("DID creation failed:", err);
     return NextResponse.json(

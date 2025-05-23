@@ -1,8 +1,18 @@
 import { Buffer } from 'buffer';
 
 export interface FullVcResponse {
+  '@context': string[];
+  id: string;
+  type: string[];
+  issuer: string;
+  issuanceDate: string;
+  credentialSubject: Record<string, any>;
   proof: {
     jwt: string;
+    type?: string;
+    created?: string;
+    proofPurpose?: string;
+    verificationMethod?: string;
     [key: string]: any;
   };
   [key: string]: any;
@@ -100,7 +110,7 @@ export async function verifyCredentialStudio(
     `/credential/verify`,
     {
       format: 'jwt',
-      jwt,
+      verifiableCredential: jwt
     }
   );
 }
@@ -116,24 +126,23 @@ export async function verifyFullCredentialStudio(
   }>(
     `/credential/verify`,
     {
+      credential,
       format: 'json-ld',
-      verifiableCredential: credential,
     }
   );
 }
 
-/**
- * Issue and return the full Verifiable Credential JSON (including proof, contexts, etc.)
- */
+// Issue and return the full Verifiable Credential JSON (including proof, contexts, etc.)
 export async function issueFullCredentialStudio(
   issuerDid: string,
   subjectDid: string,
   attributes: Record<string, any>,
 ): Promise<FullVcResponse> {
+  // Use format: 'json-ld' to get the full JSON-LD credential, not just the JWT.
   return studioPost<FullVcResponse>(`/credential/issue`, {
     issuerDid,
     subjectDid,
     attributes,
-    format: 'jwt',
+    format: 'json-ld',
   });
 }
