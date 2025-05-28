@@ -1,35 +1,32 @@
-Kya Passport
+# Kya Passport
 
 A Trustworthy AI Credentialing App leveraging Cheqd DIDs & Verifiable Credentials
 
 ⸻
 
-Table of Contents
-	•	Overview
-	•	Key Features
-	•	Architecture
-	•	Getting Started
-	•	Prerequisites
-	•	Installation
-	•	Environment Variables
-	•	Usage
-	•	1. Create DID
-	•	2. Run AI Agent & Pin Output
-	•	3. Issue Verifiable Credential
-	•	4. Verify Credential
-	•	API Endpoints
-	•	Library Overview
-	•	lib/cheqdStudio.ts
-	•	lib/vc.ts
-	•	lib/agent.ts
-	•	lib/pin.ts
-	•	Design Decisions
-	•	Future Improvements
-	•	License
+## Table of Contents
+- [Overview](#overview)
+- [Demo](#demo)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)  
+  - [Prerequisites](#prerequisites)  
+  - [Installation](#installation)  
+  - [Environment Variables](#environment-variables)  
+- [Usage](#usage)  
+  1. [Create a DID](#create-a-did)  
+  2. [Run AI Agent & Pin Output](#run-ai-agent--pin-output)  
+  3. [Issue a Verifiable Credential](#issue-a-verifiable-credential)  
+  4. [Verify a Credential](#verify-a-credential)  
+- [API Reference](#api-reference)
+- [Library Overview](#library-overview)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
 ⸻
 
-Overview
+## Overview
 
 Kya Passport is a Next.js hackathon MVP that demonstrates how to integrate AI-generated content with Web3 trust infrastructure using Cheqd’s DID (Decentralized Identifier) and Verifiable Credential Studio APIs. It allows users to:
 	1.	Spin up an on-chain DID on Cheqd testnet.
@@ -42,7 +39,7 @@ This flow showcases the power of transparent, verifiable AI for building trust i
 
 ⸻
 
-Key Features
+## Key Features
 	•	On-Chain DID Creation: Quick generation of a Cheqd DID using Studio API.
 	•	AI Agent Integration: Runs prompts through OpenAI’s gpt-4o model.
 	•	DID-Linked Resource (DLR): Anchors JSON data on Cheqd as an on-chain resource.
@@ -52,13 +49,13 @@ Key Features
 
 ⸻
 
-Architecture
+## Architecture
 
 Client (Next.js)  →  API Routes  →  lib/*  →  Cheqd Studio APIs & OpenAI
 
-	1.	Frontend (app/page.tsx): React hooks manage state for DID, prompt, AI output, VC issuance & verification. QR code for VC.
-	2.	API Routes (app/api/…/route.ts): Thin wrappers around lib/* functions.
-	3.	Library (lib/):
+	1.Frontend (app/page.tsx): React hooks manage state for DID, prompt, AI output, VC issuance & verification. QR code for VC.
+	2.API Routes (app/api/…/route.ts): Thin wrappers around lib/* functions.
+	3.Library (lib/):
 	•	cheqdStudio.ts: Main HTTP client for Studio endpoints (/did/create, /resource/create, /credential/issue, /credential/verify).
 	•	agent.ts: Wraps OpenAI Chat model.
 	•	vc.ts: High-level VC issue function returning full credential + JWT.
@@ -66,27 +63,29 @@ Client (Next.js)  →  API Routes  →  lib/*  →  Cheqd Studio APIs & OpenAI
 
 ⸻
 
-Getting Started
+## Getting Started
 
-Prerequisites
+### Prerequisites
 	•	Node.js v18+
 	•	npm or yarn
 	•	Cheqd Studio API Key (trial available at https://studio.cheqd.io)
 	•	.env.local configured (see below)
 
-Installation
+### Installation
 
-git clone https://github.com/your-repo/kya-passport.git
+```
+git clone https://github.com/meetguleria/kya-passport.git
 cd kya-passport
 npm install
-# or yarn
+# or yarn install
+```
 
-Environment Variables
+### Environment Variables
 
 Create a .env.local in project root:
 
 # Next.js
-NEXT_PUBLIC_BASE_PATH=/   
+NEXT_PUBLIC_BASE_PATH=/
 
 # OpenAI
 OPENAI_API_KEY=sk-...
@@ -128,76 +127,37 @@ Open http://localhost:3000 in your browser.
 
 ⸻
 
-API Endpoints
+## API Endpoints
 
-Route	Method	Description
-/api/agent	POST	Runs LLM agent & returns { text, model }
-/api/createDid	POST	Creates a DID via Studio
-/api/pin	POST	Pins JSON as DID-Linked Resource (DLR)
-/api/vc	POST	Issues VC JWT for pinned data
-/api/credential/verify	POST	Verifies a JWT VC
-
+| Route                          | Method | Description                                   |
+|--------------------------------|--------|-----------------------------------------------|
+| `/api/agent`                   | POST   | Run AI agent → `{ text, model }`              |
+| `/api/createDid`               | POST   | Create a Cheqd DID via Studio API             |
+| `/api/pin`                     | POST   | Pin JSON as a DID-Linked Resource             |
+| `/api/vc`                      | POST   | Issue a VC JWT + full JSON-LD credential      |
+| `/api/credential/verify`       | POST   | Verify a JSON-LD VC via Studio API            |
 
 ⸻
 
-Library Overview
+## Library Overview
 
 lib/cheqdStudio.ts
 
-Handles all HTTP calls to Cheqd Studio:
-	•	createDidStudio() → { did, keys }
-	•	createResourceStudio(did, data, name, type) → { resourceURI }
-	•	issueFullCredentialStudio(...) → full VC JSON
-	•	issueCredentialStudio(...) → { jwt }
-	•	verifyFullCredentialStudio(vcJson) → { valid, errors, payload }
-
-lib/vc.ts
-
-High-level VC issuance:
-
-import { issueFullCredentialStudio } from './cheqdStudio';
-export async function issueVc(...) {
-  const full = await issueFullCredentialStudio(...);
-  return { jwt: full.proof.jwt, credential: full };
-}
-
-lib/agent.ts
-
-Wraps OpenAI Chat model:
-
-import { ChatOpenAI } from '@langchain/openai';
-export async function runAgent(prompt) { ... }
-
-lib/pin.ts (Optional)
-
-Demonstrates SDK-based pinning via the CosmJS/Cheqd SDK:
-
-import { getCheqdClient } from './cheqd'; // CosmJS client
-export async function pinDlr(did, data) { ... }
-
+- **`lib/cheqdStudio.ts`**  
+  - DID creation, resource anchoring, issue & verify credentials  
+- **`lib/agent.ts`**  
+  - OpenAI Chat wrapper (`runAgent`)  
+- **`lib/vc.ts`**  
+  - High-level VC issuance (`issueVc`)  
+- **`lib/pin.ts`**  
+  - SDK-based on-chain pinning (optional)
 
 ⸻
 
-Design Decisions
-	•	Cheqd Studio API over local SDK:
-Simplifies authentication (API key), no wallet setup, accelerated MVP.
-	•	Next.js App Router:
-Leverages serverless API routes for modular backend logic.
-	•	TypeScript & Interfaces:
-Strong typing for all Studio payloads & responses.
-	•	Tailwind CSS:
-Rapid UI styling, dark/light theme support.
-
-⸻
-
-Future Improvements
+## Future Improvements
 	•	On-chain explorer links:  Query Tx hash or resourceID on Cheqd Explorer.
 	•	Holder DID support:  Integrate did:key creation for external holders.
 	•	Trust Registry:  Build registry of approved AI agents & credential schemas.
 	•	Authentication:  Allow users to import their own wallets via WalletConnect.
 
 ⸻
-
-License
-
-This project is open-sourced under the MIT License. Feel free to reuse and contribute!
