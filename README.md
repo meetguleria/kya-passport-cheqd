@@ -45,23 +45,23 @@ This flow showcases the power of transparent, verifiable AI for building trust i
 
 Client (Next.js)  →  API Routes  →  lib/*  →  Cheqd Studio APIs & OpenAI
 
-	1.Frontend (app/page.tsx): React hooks manage state for DID, prompt, AI output, VC issuance & verification. QR code for VC.
-	2.API Routes (app/api/…/route.ts): Thin wrappers around lib/* functions.
-	3.Library (lib/):
-	•	cheqdStudio.ts: Main HTTP client for Studio endpoints (/did/create, /resource/create, /credential/issue, /credential/verify).
-	•	agent.ts: Wraps OpenAI Chat model.
-	•	vc.ts: High-level VC issue function returning full credential + JWT.
-	•	pin.ts: (Optional) SDK-based pinning with CosmJS / Cheqd SDK.
+- Frontend (app/page.tsx): React hooks manage state for DID, prompt, AI output, VC issuance & verification. QR code for VC.
+- API Routes (app/api/…/route.ts): Thin wrappers around lib/* functions.
+- Library (lib/):
+- cheqdStudio.ts: Main HTTP client for Studio endpoints (/did/create, /resource/create, /credential/issue, /credential/verify).
+- agent.ts: Wraps OpenAI Chat model.
+- vc.ts: High-level VC issue function returning full credential + JWT.
+- pin.ts: (Optional) SDK-based pinning with CosmJS / Cheqd SDK.
 
 ⸻
 
 ## Getting Started
 
 ### Prerequisites
-	•	Node.js v18+
-	•	npm or yarn
-	•	Cheqd Studio API Key (trial available at https://studio.cheqd.io)
-	•	.env.local configured (see below)
+- Node.js v18+
+- npm or yarn
+- Cheqd Studio API Key (trial available at https://studio.cheqd.io)
+- .env.local configured (see below)
 
 ### Installation
 
