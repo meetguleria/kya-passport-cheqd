@@ -2,8 +2,6 @@
 
 A Trustworthy AI Credentialing App leveraging Cheqd DIDs & Verifiable Credentials
 
-⸻
-
 ## Table of Contents
 - [Overview](#overview)
 - [Demo](#demo)
@@ -24,8 +22,6 @@ A Trustworthy AI Credentialing App leveraging Cheqd DIDs & Verifiable Credential
 - [Contributing](#contributing)
 - [License](#license)
 
-⸻
-
 ## Overview
 
 Kya Passport is a Next.js hackathon MVP that demonstrates how to integrate AI-generated content with Web3 trust infrastructure using Cheqd’s DID (Decentralized Identifier) and Verifiable Credential Studio APIs. It allows users to:
@@ -37,8 +33,6 @@ Kya Passport is a Next.js hackathon MVP that demonstrates how to integrate AI-ge
 
 This flow showcases the power of transparent, verifiable AI for building trust in AI-driven systems.
 
-⸻
-
 ## Key Features
 	•	On-Chain DID Creation: Quick generation of a Cheqd DID using Studio API.
 	•	AI Agent Integration: Runs prompts through OpenAI’s gpt-4o model.
@@ -46,8 +40,6 @@ This flow showcases the power of transparent, verifiable AI for building trust i
 	•	Verifiable Credentials: Issues JWT-based VCs via Studio API.
 	•	VC Verification: Provides a UI-driven verify flow against Studio.
 	•	Zero Wallet Setup: No local wallet key management; uses Cheqd Studio’s API key.
-
-⸻
 
 ## Architecture
 
