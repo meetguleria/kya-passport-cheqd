@@ -100,24 +100,22 @@ npm run dev
 Open http://localhost:3000 in your browser.
 
 1. Create DID
-	•	Click Create DID.
-	•	Your new DID (e.g. did:cheqd:testnet:...) appears.
+	- Click Create DID.
+	- Your new DID (e.g. did:cheqd:testnet:...) appears.
 
 2. Run AI Agent & Pin Output
-	•	Enter a prompt in the textarea.
-	•	Click Run & Issue VC.
-	•	AI agent response appears.
-	•	Resource pinned via createResourceStudio on Cheqd testnet.
+	- Enter a prompt in the textarea.
+	- Click Run & Issue VC.
+	- AI agent response appears.
+	- Resource pinned via createResourceStudio on Cheqd testnet.
 
 3. Issue Verifiable Credential
-	•	Upon pinning, Studio issues a VC JWT.
-	•	JWT and QR code appear for scanning with external wallet apps.
+	- Upon pinning, Studio issues a VC JWT.
+	- JWT and QR code appear for scanning with external wallet apps.
 
 4. Verify Credential
-	•	Click Verify VC.
-	•	Studio’s /credential/verify returns validity & payload.
-
-⸻
+	- Click Verify VC.
+	- Studio’s /credential/verify returns validity & payload.
 
 ## API Endpoints
 
@@ -144,12 +142,8 @@ lib/cheqdStudio.ts
 - **`lib/pin.ts`**  
   - SDK-based on-chain pinning (optional)
 
-⸻
-
 ## Future Improvements
-	•	On-chain explorer links:  Query Tx hash or resourceID on Cheqd Explorer.
-	•	Holder DID support:  Integrate did:key creation for external holders.
-	•	Trust Registry:  Build registry of approved AI agents & credential schemas.
-	•	Authentication:  Allow users to import their own wallets via WalletConnect.
-
-⸻
+- On-chain explorer links:  Query Tx hash or resourceID on Cheqd Explorer.
+- Holder DID support:  Integrate did:key creation for external holders.
+- Trust Registry:  Build registry of approved AI agents & credential schemas.
+- Authentication:  Allow users to import their own wallets via WalletConnect.
